@@ -1,0 +1,61 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: zabbix
+  labels:
+    app: zabbix_timescale
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zabbix
+  template:
+    metadata:
+      labels:
+        app: zabbix
+        svc: zabbix
+    spec:
+      containers:
+        - name: zabbix-server
+          image: zabbix/zabbix-server-pgsql:{{ .Values.Zabbix.version.server }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 10051
+          envFrom:
+            - configMapRef:
+                name: env
+            - secretRef:
+                name: secrets
+        - name: zabbix-web
+          image: zabbix/zabbix-web-nginx-pgsql:{{ .Values.Zabbix.version.web }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: env
+            - secretRef:
+                name: secrets
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: zabbix
+  labels:
+    app: zabbix_timescale
+spec:
+  selector:
+    svc: zabbix
+  externalIPs:
+    {{- range .Values.General.externalIP }}
+    - {{ . | quote }}
+    {{- end }}
+  ports:
+    - name: zabbix-web
+      port: {{ .Values.Zabbix.ports.web }}
+      targetPort: 8080
+      protocol: "TCP"
+    - name: zabbix-server
+      port: {{ .Values.Zabbix.ports.server }}
+      targetPort: 10051
+      protocol: "TCP"

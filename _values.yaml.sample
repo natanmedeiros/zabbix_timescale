@@ -1,0 +1,23 @@
+General:
+  externalIP:
+    - "192.168.122.18"
+
+Zabbix:
+  ports:
+    web: 8080
+    server: 10051
+  version:
+    web: "5.2-alpine-latest"
+    server: "5.2-alpine-latest"
+
+Timescaledb:
+  ports:
+    db: 5432
+  version:
+    db: "1.7.4-pg12"
+
+Grafana:
+  ports:
+    web: 3000
+  version:
+    web: "7.3"

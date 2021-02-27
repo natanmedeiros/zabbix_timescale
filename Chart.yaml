@@ -1,0 +1,11 @@
+apiVersion: v1
+name: zabbix-timescale
+version: 1.0
+description: "Stack contendo Zabbix, timescaledb e grafana"
+keywords:
+  - "zabbix"
+  - "timescale"
+  - "grafana"
+maintainers:
+  - name: "Natan Medeiros Alves de Araújo"
+    email: natanmedeirosrn@gmail.com
