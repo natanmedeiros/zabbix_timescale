@@ -1,0 +1,33 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: timescaledb-data
+  labels:
+    app: zabbix_timescale
+    name: timescaledb-data
+spec:
+  capacity:
+    storage: 20Gi
+  storageClassName: local-storage
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: '/var/lib/postgresql/data'
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: timescaledb
+  labels:
+    app: zabbix_timescale
+    name: timescaledb
+spec:
+  selector:
+    matchLabels:
+      name: timescaledb-data
+  storageClassName: local-storage
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi

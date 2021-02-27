@@ -1,0 +1,13 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: env
+data:
+  POSTGRES_USER: zabbix
+  POSTGRES_DB: zabbix
+  DB_SERVER_HOST: postgres #Não alterar
+  ZBX_DEBUGLEVEL: "1"
+  ZBX_MAXEXECUTIONTIME: "1000"
+  PHP_TZ: "America/Sao_Paulo"
+  ZBX_POSTMAXSIZE: 512M
+  ZBX_SERVER_HOST: localhost #Não alterar

@@ -1,0 +1,63 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: timescaledb
+  labels:
+    app: zabbix_timescale
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: timescaledb
+  template:
+    metadata:
+      labels:
+        app: timescaledb
+        svc: postgres
+    spec:
+      volumes:
+        - name: shm
+          emptyDir:
+            medium: Memory
+        - name: timescaledb-data
+          persistentVolumeClaim:
+            claimName: timescaledb
+      containers:
+        - name: timescaledb
+          image: timescale/timescaledb:{{ .Values.Timescaledb.version.db }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key: POSTGRES_PASSWORD
+          envFrom:
+            - configMapRef:
+                name: env
+            - secretRef:
+                name: secrets
+          volumeMounts:
+            - name: timescaledb-data
+              mountPath: "/var/lib/postgresql/data"
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: postgres
+  labels:
+    app: zabbix_timescale
+spec:
+  selector:
+    svc: postgres
+  externalIPs:
+    {{- range .Values.General.externalIP }}
+    - {{ . | quote }}
+    {{- end }}
+  ports:
+    - name: postgres
+      port: {{ .Values.Timescaledb.ports.db }}
+      targetPort: 5432
+      protocol: "TCP"

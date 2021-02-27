@@ -1,0 +1,47 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: grafana
+  labels:
+    app: zabbix_timescale
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+        svc: grafana
+    spec:
+      containers:
+        - name: grafana
+          image: monitoringartist/grafana-xxl:{{ .Values.Grafana.version.web }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: env
+            - secretRef:
+                name: secrets
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: grafana
+  labels:
+    app: zabbix_timescale
+spec:
+  selector:
+    svc: grafana
+  externalIPs:
+    {{- range .Values.General.externalIP }}
+    - {{ . | quote }}
+    {{- end }}
+  ports:
+    - name: grafana
+      port: {{ .Values.Grafana.ports.web }}
+      targetPort: 3000
+      protocol: "TCP"
